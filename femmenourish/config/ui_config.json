@@ -1,0 +1,92 @@
+{
+  "app_info": {
+    "name": "OvaWell Clinical Suite",
+    "tagline": "AI-Powered PCOS Diagnosis & Nutrition Management",
+    "version": "1.0.0",
+    "description": "Professional platform for healthcare providers to diagnose PCOS and generate personalized nutrition plans",
+    "footer_text": "OvaWell © 2026 | Empowering Women's Health Through AI"
+  },
+  
+  "messages": {
+    "welcome": "Welcome to OvaWell Clinical Suite – Your intelligent partner in PCOS care.",
+    "select_city": "Select your clinic location to generate geographically-appropriate meal plans for your patients.",
+    "upload_ultrasound": "Upload a transvaginal ultrasound image for AI-powered analysis (optional but recommended).",
+    "assessment_complete": "✅ PCOS Assessment Complete",
+    "generating_plan": "🍽️ Generating personalized PCOS meal plan...",
+    "plan_ready": "✅ Meal Plan Generated Successfully!",
+    "no_patients": "No patients added yet. Click 'New Patient Assessment' to begin.",
+    "api_error": "⚠️ API connection issue. Please check your internet connection and try again.",
+    "processing": "Processing your request...",
+    "success": "Operation completed successfully!",
+    "error_generic": "An error occurred. Please try again."
+  },
+  
+  "help_text": {
+    "rotterdam_criteria": "PCOS diagnosis requires meeting at least 2 out of 3 Rotterdam criteria: irregular ovulation, hyperandrogenism, and polycystic ovaries on ultrasound.",
+    "phenotypes": "PCOS phenotypes indicate the specific combination of criteria met and help guide treatment approaches.",
+    "gi_index": "Glycemic Index (GI) measures how quickly foods raise blood sugar. Low-GI foods (< 55) are recommended for PCOS.",
+    "macro_ratio": "The 40-30-30 macro ratio (40% carbs, 30% protein, 30% fat) helps manage insulin sensitivity in PCOS.",
+    "geographic_customization": "Meal plans are adapted to use locally available ingredients and culturally appropriate cuisines.",
+    "ultrasound_analysis": "AI analyzes ultrasound images to detect polycystic ovarian morphology (12+ follicles, increased volume)."
+  },
+  
+  "labels": {
+    "patient_name": "Patient Name",
+    "patient_age": "Age",
+    "patient_bmi": "BMI",
+    "symptoms": "Symptoms",
+    "risk_score": "PCOS Risk Score",
+    "confidence": "Confidence Level",
+    "phenotype": "PCOS Phenotype",
+    "meal_plan": "Personalized Meal Plan",
+    "shopping_list": "Shopping List",
+    "recipes": "Recipes",
+    "nutrition_info": "Nutrition Information"
+  },
+  
+  "button_labels": {
+    "new_assessment": "New Patient Assessment",
+    "analyze": "Analyze & Diagnose",
+    "generate_plan": "Generate Meal Plan",
+    "download_pdf": "Download PDF Report",
+    "view_details": "View Details",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit"
+  },
+  
+  "placeholders": {
+    "patient_name": "Enter patient name...",
+    "search": "Search...",
+    "notes": "Add notes or observations...",
+    "ingredients": "Enter available ingredients (comma-separated)..."
+  },
+  
+  "empty_states": {
+    "no_patients": {
+      "title": "No Patients Yet",
+      "message": "Start by creating your first patient assessment.",
+      "cta": "New Assessment"
+    },
+    "no_results": {
+      "title": "No Results Found",
+      "message": "Try adjusting your search or filters.",
+      "cta": "Clear Filters"
+    },
+    "no_recipes": {
+      "title": "No Recipes Available",
+      "message": "No PCOS-friendly recipes found matching your criteria.",
+      "cta": "Adjust Preferences"
+    }
+  },
+  
+  "disclaimers": {
+    "medical": "⚠️ This tool is designed to assist healthcare professionals and should not replace clinical judgment. Always consider the complete clinical picture when making diagnostic and treatment decisions.",
+    "ai_analysis": "🤖 AI analysis results should be reviewed by a qualified healthcare provider before making clinical decisions.",
+    "nutrition": "🍽️ Nutrition plans are general guidelines. Individual patient needs may vary based on comorbidities, medications, and personal preferences."
+  }
+}

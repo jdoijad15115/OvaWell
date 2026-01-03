@@ -1,0 +1,184 @@
+{
+  "rotterdam_criteria": {
+    "description": "PCOS diagnosis requires meeting 2 out of 3 Rotterdam criteria",
+    "source": "Rotterdam ESHRE/ASRM-Sponsored PCOS Consensus Workshop Group, 2004",
+    "criteria": {
+      "oligoanovulation": {
+        "name": "Oligo-ovulation or Anovulation",
+        "description": "Irregular or absent menstrual cycles indicating irregular ovulation",
+        "indicators": [
+          "Menstrual cycles longer than 35 days",
+          "Fewer than 9 periods in 12 months",
+          "Absence of menstruation (amenorrhea)",
+          "Unpredictable cycle lengths"
+        ],
+        "weight": 33.3
+      },
+      "hyperandrogenism": {
+        "name": "Clinical or Biochemical Hyperandrogenism",
+        "description": "Evidence of elevated male hormones (androgens)",
+        "clinical_signs": [
+          "Hirsutism (excess facial or body hair)",
+          "Acne (especially on jawline, chest, back)",
+          "Male-pattern baldness or hair thinning",
+          "Oily skin"
+        ],
+        "biochemical_signs": [
+          "Elevated total testosterone",
+          "Elevated free testosterone",
+          "Elevated androstenedione",
+          "Elevated DHEAS"
+        ],
+        "weight": 33.3
+      },
+      "polycystic_ovaries": {
+        "name": "Polycystic Ovaries on Ultrasound",
+        "description": "Evidence of polycystic ovarian morphology on transvaginal ultrasound",
+        "ultrasound_criteria": [
+          "12 or more follicles measuring 2-9mm in diameter in one ovary",
+          "Ovarian volume greater than 10 mL",
+          "Increased stromal echogenicity"
+        ],
+        "weight": 33.4
+      }
+    },
+    "diagnosis_rule": "2_out_of_3"
+  },
+  
+  "phenotypes": {
+    "A": {
+      "name": "Classic PCOS (Frank PCOS)",
+      "criteria": ["oligoanovulation", "hyperandrogenism", "polycystic_ovaries"],
+      "description": "All three Rotterdam criteria met",
+      "severity": "severe",
+      "metabolic_risk": "high",
+      "color": "#FF6B9D"
+    },
+    "B": {
+      "name": "Classic Non-PCO PCOS",
+      "criteria": ["oligoanovulation", "hyperandrogenism"],
+      "description": "Ovulatory and hormonal dysfunction without polycystic ovaries",
+      "severity": "moderate",
+      "metabolic_risk": "high",
+      "color": "#FFB74D"
+    },
+    "C": {
+      "name": "Ovulatory PCOS",
+      "criteria": ["hyperandrogenism", "polycystic_ovaries"],
+      "description": "Regular ovulation but with hyperandrogenism and polycystic ovaries",
+      "severity": "moderate",
+      "metabolic_risk": "moderate",
+      "color": "#FFB74D"
+    },
+    "D": {
+      "name": "Mild PCOS (Non-Hyperandrogenic PCOS)",
+      "criteria": ["oligoanovulation", "polycystic_ovaries"],
+      "description": "Ovulatory dysfunction and polycystic ovaries without clinical hyperandrogenism",
+      "severity": "mild",
+      "metabolic_risk": "moderate",
+      "color": "#81C784"
+    }
+  },
+  
+  "risk_factors": {
+    "family_history": {
+      "name": "Family History of PCOS",
+      "description": "First-degree relative with PCOS",
+      "weight": 15,
+      "risk_increase": 20
+    },
+    "obesity": {
+      "name": "Obesity (BMI ≥ 30)",
+      "description": "Body Mass Index of 30 or higher",
+      "weight": 20,
+      "risk_increase": 25
+    },
+    "insulin_resistance": {
+      "name": "Insulin Resistance",
+      "description": "Evidence of insulin resistance or prediabetes",
+      "weight": 25,
+      "risk_increase": 30
+    },
+    "metabolic_syndrome": {
+      "name": "Metabolic Syndrome",
+      "description": "Presence of metabolic syndrome components",
+      "weight": 20,
+      "risk_increase": 25
+    }
+  },
+  
+  "pcos_nutrition_guidelines": {
+    "macro_distribution": {
+      "carbs_percent": 40,
+      "protein_percent": 30,
+      "fat_percent": 30,
+      "rationale": "Lower carb, higher protein helps with insulin sensitivity"
+    },
+    
+    "daily_targets": {
+      "max_sugar_grams": 25,
+      "min_protein_grams": 80,
+      "min_fiber_grams": 30,
+      "max_glycemic_load": 100
+    },
+    
+    "spoonacular_api_filters": {
+      "maxSugar": 25,
+      "minProtein": 20,
+      "minFiber": 8,
+      "maxGlycemicLoad": 10,
+      "diet": "low-carb"
+    },
+    
+    "beneficial_nutrients": [
+      {
+        "name": "Omega-3 Fatty Acids",
+        "benefit": "Reduces inflammation and androgen levels",
+        "sources": ["fatty fish", "flaxseeds", "walnuts", "chia seeds"]
+      },
+      {
+        "name": "Magnesium",
+        "benefit": "Improves insulin sensitivity",
+        "sources": ["leafy greens", "nuts", "seeds", "whole grains"]
+      },
+      {
+        "name": "Chromium",
+        "benefit": "Enhances insulin function",
+        "sources": ["broccoli", "eggs", "nuts", "whole grains"]
+      },
+      {
+        "name": "Vitamin D",
+        "benefit": "Improves insulin sensitivity and fertility",
+        "sources": ["fatty fish", "egg yolks", "fortified dairy"]
+      },
+      {
+        "name": "Inositol",
+        "benefit": "Improves insulin sensitivity and ovulation",
+        "sources": ["citrus fruits", "beans", "whole grains"]
+      },
+      {
+        "name": "Zinc",
+        "benefit": "Supports hormone balance and fertility",
+        "sources": ["meat", "shellfish", "legumes", "seeds"]
+      }
+    ],
+    
+    "foods_to_emphasize": [
+      "Low-GI whole grains (quinoa, brown rice, oats, millets)",
+      "Lean proteins (chicken, fish, tofu, legumes)",
+      "Healthy fats (avocado, nuts, olive oil, fatty fish)",
+      "High-fiber vegetables (broccoli, spinach, kale)",
+      "Anti-inflammatory foods (turmeric, ginger, berries)",
+      "Probiotic foods (yogurt, kefir, fermented foods)"
+    ],
+    
+    "foods_to_limit": [
+      "Refined carbohydrates (white bread, white rice, pasta)",
+      "Added sugars and sugary drinks",
+      "Processed foods and fast food",
+      "Trans fats and excessive saturated fats",
+      "Excessive dairy (may worsen acne in some)",
+      "High-GI foods (potatoes, white bread, sugary cereals)"
+    ]
+  }
+}
