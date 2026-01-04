@@ -1,9 +1,0 @@
-fastapi[all]
-uvicorn[standard]
-pydantic
-torch
-transformers
-sentencepiece
-scikit-learn
-sentence-transformers
-joblib

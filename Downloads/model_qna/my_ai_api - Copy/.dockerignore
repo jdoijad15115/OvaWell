@@ -1,5 +1,0 @@
-*.git*
-my-repair-webapp/
-node_modules/
-*.log
-__pycache__/
