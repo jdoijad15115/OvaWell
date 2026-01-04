@@ -72,6 +72,7 @@ class SpoonacularClient:
     ) -> Dict:
         """
         Search for PCOS-friendly recipes with specific filters.
+        Uses multiple cuisine fallbacks for variety.
         
         Args:
             cuisine: Cuisine type (e.g., "Indian", "British")
@@ -83,21 +84,49 @@ class SpoonacularClient:
             Dict with recipe results
         """
         
+        # Try primary cuisine first
+        result = self._search_with_params(cuisine, meal_type, dietary_restrictions, number)
+        
+        # If no results, try broader search
+        if not result.get('results') or len(result.get('results', [])) == 0:
+            print(f"No results for {cuisine} {meal_type}, trying broader search...")
+            result = self._search_with_params("", meal_type, dietary_restrictions, number)
+        
+        # If still no results, try without meal type
+        if not result.get('results') or len(result.get('results', [])) == 0:
+            print(f"No results with meal type, searching all meals...")
+            result = self._search_with_params("", "", dietary_restrictions, number * 2)
+        
+        return result
+    
+    def _search_with_params(
+        self,
+        cuisine: str,
+        meal_type: str,
+        dietary_restrictions: Optional[List[str]] = None,
+        number: int = 10
+    ) -> Dict:
+        """Internal method to search with specific parameters."""
+        
         params = {
-            "cuisine": cuisine,
-            "type": meal_type,
-            "maxSugar": 25,          # Max 25g sugar per serving (PCOS-friendly)
-            "minProtein": 20,        # Min 20g protein (supports insulin sensitivity)
-            "minFiber": 8,           # Min 8g fiber (blood sugar management)
-            "maxGlycemicLoad": 10,   # Low glycemic load
-            "diet": "low-carb",      # Low-carb preference for PCOS
-            "number": number,
+            "maxSugar": 35,          # PCOS-friendly but realistic
+            "minProtein": 8,         # Lower to get more results
+            "minFiber": 2,           # Lower to get more results
+            "number": number * 3,    # Request many more to filter
             "addRecipeInformation": True,
             "fillIngredients": True,
             "addRecipeNutrition": True,
             "instructionsRequired": True,
-            "sort": "popularity"     # Get proven popular recipes
+            "sort": "popularity"
         }
+        
+        # Add cuisine if specified
+        if cuisine:
+            params["cuisine"] = cuisine
+        
+        # Add meal type if specified
+        if meal_type:
+            params["type"] = meal_type
         
         # Add dietary restrictions
         if dietary_restrictions:
@@ -110,10 +139,11 @@ class SpoonacularClient:
             return result
         
         if "results" not in result or len(result["results"]) == 0:
-            # Relax constraints and try again
-            print(f"No results found, relaxing constraints...")
-            params["minProtein"] = 15
-            params["minFiber"] = 5
+            # Further relax constraints and try again
+            print(f"No results found, trying with minimal constraints...")
+            params["maxSugar"] = 50
+            params.pop("minProtein", None)
+            params.pop("minFiber", None)
             result = self._make_request("recipes/complexSearch", params)
         
         return result

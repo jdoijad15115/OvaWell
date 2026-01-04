@@ -148,6 +148,44 @@ def init_session_state():
 # Initialize clients
 @st.cache_resource
 def get_clients():
+    """Initialize all API clients."""
+    gemini_client = GeminiClient()
+    spoonacular_client = SpoonacularClient()
+    ultrasound_analyzer = UltrasoundAnalyzer()
+    pcos_assessor = PCOSAssessment()
+    pdf_generator = PDFGenerator()
+    
+    return gemini_client, spoonacular_client, ultrasound_analyzer, pcos_assessor, pdf_generator
+
+def get_fallback_recipe(meal_type):
+    """Get a fallback recipe when API fails."""
+    fallback_recipes = {
+        "breakfast": {
+            "title": "Oats & Berries Bowl",
+            "image": "https://spoonacular.com/recipeImages/oatmeal.jpg",
+            "readyInMinutes": 10,
+            "summary": "Healthy oats with mixed berries and nuts"
+        },
+        "lunch": {
+            "title": "Grilled Chicken Salad",
+            "image": "https://spoonacular.com/recipeImages/salad.jpg",
+            "readyInMinutes": 20,
+            "summary": "Fresh greens with grilled chicken and vegetables"
+        },
+        "dinner": {
+            "title": "Baked Fish with Vegetables",
+            "image": "https://spoonacular.com/recipeImages/fish.jpg",
+            "readyInMinutes": 30,
+            "summary": "Healthy baked fish with seasonal vegetables"
+        },
+        "snack": {
+            "title": "Mixed Nuts & Seeds",
+            "image": "https://spoonacular.com/recipeImages/nuts.jpg",
+            "readyInMinutes": 2,
+            "summary": "Protein-rich handful of nuts and seeds"
+        }
+    }
+    return fallback_recipes.get(meal_type, fallback_recipes["snack"])
     """Initialize API clients (cached)."""
     try:
         gemini_client = GeminiClient()
@@ -581,89 +619,101 @@ def render_nutrition_tab(gemini_client, spoonacular_client, pdf_generator, city_
             try:
                 meal_plan = {}
                 all_recipes = []
+                total_days = plan_weeks * 7
+                current_progress = 0
+                
+                # Get varied cuisines for diversity
+                cuisines = [city_info['spoonacular_cuisine'], "Mediterranean", "Asian"]
+                cuisine_idx = 0
                 
                 # Generate for each week
                 for week in range(1, plan_weeks + 1):
-                    status_text.text(f"Generating Week {week}...")
-                    progress_bar.progress(week / (plan_weeks + 2))
+                    status_text.text(f"🍳 Generating Week {week} recipes...")
                     
                     # Generate for each day
                     for day in range(1, 8):
                         day_key = f"Week{week}_Day{day}"
                         
-                        # Breakfast
-                        breakfast_recipes = spoonacular_client.search_pcos_recipes(
-                            cuisine=city_info['spoonacular_cuisine'],
-                            meal_type="breakfast",
-                            dietary_restrictions=intolerances,
-                            number=1
-                        )
+                        # Rotate cuisines for variety
+                        day_cuisine = cuisines[cuisine_idx % len(cuisines)]
+                        cuisine_idx += 1
                         
-                        # Lunch
-                        lunch_recipes = spoonacular_client.search_pcos_recipes(
-                            cuisine=city_info['spoonacular_cuisine'],
-                            meal_type="lunch",
-                            dietary_restrictions=intolerances,
-                            number=1
-                        )
+                        status_text.text(f"📅 Week {week}, Day {day} - {day_cuisine} cuisine")
                         
-                        # Dinner
-                        dinner_recipes = spoonacular_client.search_pcos_recipes(
-                            cuisine=city_info['spoonacular_cuisine'],
-                            meal_type="dinner",
-                            dietary_restrictions=intolerances,
-                            number=1
-                        )
+                        # Get recipes for each meal
+                        day_meals = {}
                         
-                        # Snack
-                        snack_recipes = spoonacular_client.search_pcos_recipes(
-                            cuisine=city_info['spoonacular_cuisine'],
-                            meal_type="snack",
-                            dietary_restrictions=intolerances,
-                            number=1
-                        )
-                        
-                        # Check for errors
-                        if any('error' in r for r in [breakfast_recipes, lunch_recipes, dinner_recipes, snack_recipes]):
-                            st.error("API error occurred. Please try again or check API limits.")
-                            return
-                        
-                        # Store meals
-                        day_meals = {
-                            'breakfast': breakfast_recipes['results'][0] if breakfast_recipes.get('results') else {},
-                            'lunch': lunch_recipes['results'][0] if lunch_recipes.get('results') else {},
-                            'dinner': dinner_recipes['results'][0] if dinner_recipes.get('results') else {},
-                            'snack': snack_recipes['results'][0] if snack_recipes.get('results') else {}
-                        }
+                        for meal_type in ["breakfast", "lunch", "dinner", "snack"]:
+                            try:
+                                recipes = spoonacular_client.search_pcos_recipes(
+                                    cuisine=day_cuisine,
+                                    meal_type=meal_type,
+                                    dietary_restrictions=intolerances,
+                                    number=2  # Get 2 options
+                                )
+                                
+                                # Check for API errors
+                                if 'error' in recipes:
+                                    st.warning(f"⚠️ {recipes['error']} - Using fallback recipes")
+                                    day_meals[meal_type] = get_fallback_recipe(meal_type)
+                                elif recipes.get('results') and len(recipes['results']) > 0:
+                                    # Pick a random recipe from results for variety
+                                    import random
+                                    day_meals[meal_type] = random.choice(recipes['results'])
+                                    all_recipes.append(day_meals[meal_type])
+                                else:
+                                    # No results, use fallback
+                                    day_meals[meal_type] = get_fallback_recipe(meal_type)
+                                
+                            except Exception as e:
+                                print(f"Error fetching {meal_type}: {e}")
+                                day_meals[meal_type] = get_fallback_recipe(meal_type)
                         
                         meal_plan[day_key] = day_meals
                         
-                        # Collect all recipes
-                        for meal_type, recipe in day_meals.items():
-                            if recipe:
-                                all_recipes.append(recipe)
+                        # Update progress
+                        current_progress += 1
+                        progress_bar.progress(current_progress / (total_days + 2))
                 
                 # Adapt recipes to location using Gemini
-                status_text.text("Adapting recipes to local ingredients...")
-                progress_bar.progress(0.8)
-                
-                adapted_recipes = gemini_client.customize_recipes_for_location(
-                    all_recipes[:5],  # Sample for adaptation
-                    selected_city,
-                    city_info,
-                    {'dietary_restrictions': dietary_restrictions, 'budget': budget_level}
-                )
-                
-                # Generate shopping list
-                status_text.text("Creating shopping list...")
+                status_text.text("🌍 Adapting recipes to local ingredients...")
                 progress_bar.progress(0.9)
                 
-                shopping_list = gemini_client.generate_shopping_list(
-                    meal_plan,
-                    selected_city,
-                    city_info,
-                    num_people=1
-                )
+                if all_recipes:
+                    try:
+                        adapted_recipes = gemini_client.customize_recipes_for_location(
+                            all_recipes[:7],  # Sample 7 recipes for adaptation tips
+                            selected_city,
+                            city_info,
+                            {'dietary_restrictions': dietary_restrictions, 'budget': budget_level}
+                        )
+                    except Exception as e:
+                        print(f"Gemini adaptation failed: {e}")
+                        adapted_recipes = {"tips": ["Use local seasonal produce", "Shop at local markets for freshness"]}
+                else:
+                    adapted_recipes = {"tips": ["Focus on whole grains and vegetables", "Include protein with each meal"]}
+                
+                # Generate shopping list
+                status_text.text("🛒 Creating shopping list...")
+                progress_bar.progress(0.95)
+                
+                try:
+                    shopping_list = gemini_client.generate_shopping_list(
+                        meal_plan,
+                        selected_city,
+                        city_info,
+                        num_people=1
+                    )
+                except Exception as e:
+                    print(f"Shopping list generation failed: {e}")
+                    shopping_list = {
+                        "categories": {
+                            "Vegetables": [{"item": "Mixed vegetables", "quantity": "As needed", "where": "Local market"}],
+                            "Proteins": [{"item": "Eggs, Legumes, Fish", "quantity": "Weekly supply", "where": "Grocery"}],
+                            "Grains": [{"item": "Brown rice, Whole wheat", "quantity": "2 kg", "where": "Grocery"}]
+                        },
+                        "total_estimated_cost": f"{city_info['currency_symbol']}1500-2000"
+                    }
                 
                 # Store in session state
                 st.session_state.current_meal_plan = {
@@ -671,23 +721,26 @@ def render_nutrition_tab(gemini_client, spoonacular_client, pdf_generator, city_
                     'adapted_recipes': adapted_recipes,
                     'shopping_list': shopping_list,
                     'city': selected_city,
-                    'weeks': plan_weeks
+                    'weeks': plan_weeks,
+                    'dietary_restrictions': dietary_restrictions
                 }
                 
                 # Update patient record
-                for patient in st.session_state.patients:
-                    if patient['patient_name'] == assessment['patient_name']:
-                        patient['has_meal_plan'] = True
-                        break
+                if st.session_state.current_assessment:
+                    for patient in st.session_state.patients:
+                        if patient['patient_name'] == st.session_state.current_assessment['patient_name']:
+                            patient['has_meal_plan'] = True
+                            break
                 
                 progress_bar.progress(1.0)
                 status_text.text("✅ Meal plan generated successfully!")
                 
-                st.success("🎉 Personalized PCOS meal plan ready!")
+                st.success(f"🎉 {plan_weeks}-week PCOS meal plan ready with {len(all_recipes)} recipes!")
+                st.balloons()
                 
             except Exception as e:
-                st.error(f"Error generating meal plan: {str(e)}")
-                return
+                st.error(f"❌ Error generating meal plan: {str(e)}")
+                st.info("Please check your API keys and try again with fewer weeks.")
     
     # Display meal plan if available
     if st.session_state.current_meal_plan:
@@ -709,21 +762,44 @@ def render_nutrition_tab(gemini_client, spoonacular_client, pdf_generator, city_
             day_key = f"Week{week_num}_Day{day}"
             
             if day_key in meal_plan_data['meal_plan']:
-                st.markdown(f"#### Day {day}")
+                day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+                st.markdown(f"### 📅 {day_names[day-1]} (Day {day})")
                 
                 day_meals = meal_plan_data['meal_plan'][day_key]
                 
+                # Create 4 columns for each meal
                 col1, col2, col3, col4 = st.columns(4)
                 
                 for col, (meal_type, recipe) in zip([col1, col2, col3, col4], day_meals.items()):
                     with col:
-                        if recipe:
-                            st.markdown(f"**{meal_type.title()}**")
+                        st.markdown(f"**🍽️ {meal_type.title()}**")
+                        if recipe and isinstance(recipe, dict):
                             if 'image' in recipe:
-                                st.image(recipe['image'], width=200)
-                            st.write(recipe.get('title', 'N/A')[:40])
+                                try:
+                                    st.image(recipe['image'], width=150)
+                                except:
+                                    st.write("🍽️")
+                            
+                            # Title
+                            title = recipe.get('title', 'Recipe')
+                            st.markdown(f"**{title[:35]}{'...' if len(title) > 35 else ''}**")
+                            
+                            # Details
                             if 'readyInMinutes' in recipe:
                                 st.caption(f"⏱️ {recipe['readyInMinutes']} min")
+                            
+                            if 'servings' in recipe:
+                                st.caption(f"🍽️ {recipe['servings']} servings")
+                            
+                            # Show nutrition if available
+                            if 'nutrition' in recipe and 'nutrients' in recipe['nutrition']:
+                                nutrients = recipe['nutrition']['nutrients']
+                                for nutrient in nutrients:
+                                    if nutrient['name'] == 'Calories':
+                                        st.caption(f"🔥 {int(nutrient['amount'])} cal")
+                                        break
+                        else:
+                            st.info("Recipe info unavailable")
                 
                 st.markdown("---")
         

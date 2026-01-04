@@ -20,7 +20,8 @@ class GeminiClient:
             raise ValueError("GEMINI_API_KEY not found in environment variables")
         
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-pro')
+        # Use gemini-1.5-pro (latest stable model supporting vision and text)
+        self.model = genai.GenerativeModel('gemini-1.5-pro')
         
         # System context for medical accuracy
         self.system_context = """
