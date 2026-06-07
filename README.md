@@ -825,15 +825,12 @@ This is a hackathon project! Contributions welcome after initial competition per
 
 ---
 
-## 📄 License
-
-[Add your license here]
+## License
+MIT © [Janhavi Doijad](https://github.com/jdoijad15115)
 
 ---
-
-##  Contact
-
-[Your contact information]
+## Contact
+[GitHub](https://github.com/jdoijad15115) · [LinkedIn](https://www.linkedin.com/in/janhavi-doijad-79bb8520b/) · janhavidoijad@gmail.com
 
 ---
 
